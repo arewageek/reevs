@@ -58,6 +58,12 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        montserrat: ["var(--font-montserrat)"],
+        inter: ["var(--font-inter)"],
+        poppins: ["var(--font-poppins)"],
+        nunito: ["var(--font-nunito)"],
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
