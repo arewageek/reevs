@@ -10,5 +10,5 @@ export interface IRegisterWithCredentialsProps {
 export interface IResponse {
   status: "success" | "failed" | "error";
   message?: string;
-  data?: string;
+  data?: any;
 }
