@@ -5,21 +5,19 @@ import { Eye, EyeClosed } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
 import Link from 'next/link'
-import { } from 'lucide-react'
 import { FaGoogle, FaApple } from 'react-icons/fa'
 import useToggle from '@/hooks/useToggle'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { useForm } from 'react-hook-form'
 import { boolean, z } from 'zod'
 import { zodResolver } from "@hookform/resolvers/zod"
-import LoadingButton from '../button-effects/loading-button'
-import SuccessButton from '../button-effects/success-button'
 import { evaluatePasswordStrength } from '@/utils/password-strength-evaluator'
 import { useState } from 'react'
 import PasswordStrengthMeter from '../auth/password-strength-meter'
-import { registerUsingCredentials } from '@/actions/auth.action'
 import { toast } from 'react-toastify'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import SubmitButton from '../buttons/submit-button'
+import { handleUserRegistration } from '@/modules/auth/action'
 
 const formSchema = z.object({
     firstName: z.string().min(3).max(30),
@@ -35,6 +33,7 @@ const formSchema = z.object({
 const RegisterForm = () => {
 
     const [passwordStrength, setPasswordStrength] = useState<number>(0)
+    const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
     const [showPassword, togglePassword] = useToggle(false)
 
@@ -51,14 +50,15 @@ const RegisterForm = () => {
         }
     })
 
-    const { isSubmitSuccessful, isSubmitting } = form.formState
+    const { isSubmitting } = form.formState
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        const response = await registerUsingCredentials(values)
+        const response = await handleUserRegistration(values)
 
         if (response.status === 'success') {
+            setIsSubmitted(true)
             toast.success(response.message)
-            router, redirect("/login")
+            router.replace('login')
         }
         else if (response.status === 'failed') {
             toast.error(response.message)
@@ -170,9 +170,7 @@ const RegisterForm = () => {
                     </div>
 
                     <div className='mt-4 w-full'>
-                        <Button disabled={passwordStrength < 3 || isSubmitSuccessful || isSubmitting} type="submit" className={`bg-accent-100 hover:bg-accent-100/60 transition w-full py-7 px-3 rounded-lg ${isSubmitting}`}>
-                            {isSubmitting ? <LoadingButton /> : isSubmitSuccessful ? <SuccessButton /> : 'Create account'}
-                        </Button>
+                        <SubmitButton isSubmitSuccessful={isSubmitted} isSubmitting={isSubmitting} text="Create an account" />
                     </div>
 
                     <div className='w-full flex items-center justify-center text-sm'>
