@@ -9,7 +9,7 @@ import { FaGoogle, FaApple } from 'react-icons/fa'
 import useToggle from '@/hooks/useToggle'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { useForm } from 'react-hook-form'
-import { boolean, z } from 'zod'
+import { z } from 'zod'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { evaluatePasswordStrength } from '@/utils/password-strength-evaluator'
 import { useState } from 'react'
@@ -18,17 +18,7 @@ import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import SubmitButton from '../buttons/submit-button'
 import { handleUserRegistration } from '@/modules/auth/action'
-
-const formSchema = z.object({
-    firstName: z.string().min(3).max(30),
-    lastName: z.string().min(3).max(30),
-    email: z.string().email(),
-    password: z.string().min(8).max(30),
-    confirmPassword: z.string().min(8).max(30),
-}).refine(data => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-})
+import { registrationSchema } from '@/types/form-schema'
 
 const RegisterForm = () => {
 
@@ -39,8 +29,8 @@ const RegisterForm = () => {
 
     const router = useRouter()
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof registrationSchema>>({
+        resolver: zodResolver(registrationSchema),
         defaultValues: {
             firstName: "",
             lastName: "",
@@ -52,7 +42,7 @@ const RegisterForm = () => {
 
     const { isSubmitting } = form.formState
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof registrationSchema>) => {
         const response = await handleUserRegistration(values)
 
         if (response.status === 'success') {

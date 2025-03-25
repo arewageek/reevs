@@ -14,21 +14,19 @@ import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { handleCredentialsSignin } from '@/modules/auth/action'
-
-const formSchema = z.object({
-    email: z.string().email().min(5).max(30),
-    password: z.string().min(8).max(30),
-})
+import { authRedirect } from '@/modules/auth/utils'
+import { loginSchema } from '@/types/form-schema'
 
 const LoginForm = () => {
 
     const [isSuccessful, seIsSuccessful] = useState(false)
 
     const [showPassword, togglePassword] = useToggle(false)
+
     const router = useRouter()
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
         defaultValues: {
             email: "",
             password: ""
@@ -37,13 +35,13 @@ const LoginForm = () => {
 
     const { isSubmitting, isSubmitSuccessful } = form.formState
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof loginSchema>) => {
         const signin = await handleCredentialsSignin(values.email, values.password)
 
         if (signin.status == 'success') {
             toast.success("Login was successful, please wait while we redirect you")
             seIsSuccessful(true)
-            router.push('/user')
+            await authRedirect();
             return;
         }
 
@@ -58,7 +56,7 @@ const LoginForm = () => {
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field }) => (
+                        render={({ field }: any) => (
                             <FormItem>
                                 <FormControl>
                                     <Input {...field} type="email" placeholder='Email Address' name="email" className='py-6 px-3 hover:border-purple-500 border-2 border-transparent ring-0 focus-within:ring-0 bg-white/10 placeholder:text-gray-400' />
@@ -73,7 +71,7 @@ const LoginForm = () => {
                     <FormField
                         control={form.control}
                         name="password"
-                        render={({ field }) => (
+                        render={({ field }: any) => (
                             <FormItem>
                                 <FormControl>
                                     <div className='flex hover:border-purple-500 border-2 border-transparent rounded-lg bg-white/10 items-center'>
