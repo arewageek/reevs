@@ -3,7 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import Linkedin from "next-auth/providers/linkedin";
 import { prisma } from "./lib/prisma";
-import bcrypt from "bcryptjs";
+import { loginSchema } from "./types/form-schema";
+import { TAuthUser } from "./types/common";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -13,14 +14,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        const validation = loginSchema.safeParse(credentials);
+        if (!validation.success) {
+          console.log({ error: validation.error });
+          return null;
+        }
+
         const user = await prisma.user.findFirst({
           where: { email: credentials.email as string },
+          include: {
+            role: true,
+          },
         });
         if (!user) return null;
 
-        // check if password match
+        // // check if password match
+        // const isValidPassword = await authService.verifyPasswordMatch(
+        //   user.password,
+        //   credentials.password as string
+        // );
 
-        return user;
+        // if (!isValidPassword) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role?.name || "user",
+        };
       },
     }),
     Google({
@@ -36,13 +58,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authorized({ request: { nextUrl }, auth }) {
       const { pathname } = nextUrl;
       const isLoggedIn = !!auth?.user;
-      console.log({ isLoggedIn, auth, state: !auth });
 
-      if (isLoggedIn && pathname.startsWith("/auth/login")) {
+      if (isLoggedIn && pathname.startsWith("/login")) {
         return Response.redirect(new URL("/user", nextUrl));
       }
 
       return !!auth;
+    },
+    jwt({ token, user }) {
+      if (user) {
+        const typedUser = user as TAuthUser;
+
+        token.id = typedUser.id;
+        token.firstName = typedUser.firstName;
+        token.lastName = typedUser.lastName;
+        token.role = typedUser.role;
+      }
+      return token;
+    },
+    session({ session, token }: { session: any; token: any }) {
+      session.user = {
+        id: token.id,
+        firstName: token.firstName,
+        lastName: token.lastName,
+        role: token.role,
+      };
+      return session;
     },
   },
   pages: {

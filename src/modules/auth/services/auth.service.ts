@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
-import { IRegisterWithCredentialsProps, IResponse } from "@/interface";
+import { TRegisterWithCredentialsProps, TResponse } from "@/types/common";
 import { signIn } from "@/auth";
+import { registrationSchemaServer } from "@/types/form-schema";
+import bcrypt from "bcryptjs";
 
 class AuthService {
   public async register({
@@ -9,14 +10,37 @@ class AuthService {
     lastName,
     email,
     password,
-  }: IRegisterWithCredentialsProps): Promise<IResponse> {
+    role,
+  }: TRegisterWithCredentialsProps): Promise<TResponse> {
     try {
+      const validation = registrationSchemaServer.safeParse({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+
+      console.log({ error: validation.error });
+      if (!validation.success) {
+        return {
+          status: "failed",
+          message: validation.error.errors[0].message, // Return first error
+        };
+      }
+
       const userExist = await prisma.user.findFirst({ where: { email } });
       if (userExist)
         return {
           status: "failed",
           message: "User already exist",
         };
+
+      const userRole = await prisma.role.findUnique({
+        where: { name: "user" },
+      });
+      const adminRole = await prisma.role.findUnique({
+        where: { name: "admin" },
+      });
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -26,7 +50,8 @@ class AuthService {
           firstName,
           lastName,
           email,
-          password,
+          password: hashedPassword,
+          roleId: (role == "admin" ? adminRole : userRole)?.id!,
         },
       });
 
@@ -42,7 +67,7 @@ class AuthService {
     }
   }
 
-  public async login(email: string, password: string): Promise<IResponse> {
+  public async login(email: string, password: string): Promise<TResponse> {
     try {
       await signIn("credentials", {
         email,
