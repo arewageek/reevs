@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter, Montserrat, Nunito, Poppins } from "next/font
 import { ToastContainer } from 'react-toastify'
 
 import "./globals.css";
+import GuestNavbar from "@/components/layout/guest-navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,7 +55,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${inter.variable} ${poppins.variable} ${nunito.variable} antialiased font-inter text-gray-300`}
+        className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${inter.variable} ${poppins.variable} ${nunito.variable} antialiased font-inter text-gray-300 bg-gray-200`}
       >
         {children}
         <ToastContainer />

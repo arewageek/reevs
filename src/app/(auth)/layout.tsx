@@ -1,15 +1,8 @@
-import { auth } from '@/auth'
 import Link from 'next/link'
 import React, { ReactNode } from 'react'
 import { FaArrowLeft } from 'react-icons/fa'
-import { redirect } from 'next/navigation'
 
 const AuthLayout = async ({ children }: { children: ReactNode }) => {
-    const session = await auth()
-    if (session?.user) {
-        redirect("/user")
-    }
-
     return (
         <div className='w-screen h-screen flex bg-primary-100 p-5'>
             <div className='w-full h-full flex '>
