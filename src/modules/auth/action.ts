@@ -26,17 +26,7 @@ export async function handlePasswordReset(email: string): Promise<TResponse> {
   return await passwordService.requestPasswordReset(email);
 }
 
-export async function handleGoogleSignin(): Promise<TResponse> {
-  try {
-    const signin = await signIn("google", {
-      redirect: false,
-    });
-
-    console.log({ signin });
-
-    return { status: "success", message: "Signin was successful" };
-  } catch (error: any) {
-    console.log({ error });
-    return { status: "failed", message: error.message };
-  }
+export async function handleGoogleSignin() {
+  "use server";
+  await signIn("google");
 }

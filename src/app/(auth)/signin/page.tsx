@@ -1,9 +1,8 @@
-import OauthSignin from '@/components/auth/oauth-signin'
-import LoginForm from '@/components/form/login.form'
+import SigninForm from '@/components/form/signin.form'
 import Link from 'next/link'
 import React from 'react'
 
-const LoginPage = () => {
+const SigninPage = () => {
     return (
         <div className='w-full p-5 mx-auto lg:w-3/5'>
             <div className='my-5'>
@@ -16,11 +15,10 @@ const LoginPage = () => {
             </div>
 
             <div className='mt-10'>
-                <LoginForm />
-                <OauthSignin />
+                <SigninForm />
             </div>
         </div>
     )
 }
 
-export default LoginPage
+export default SigninPage

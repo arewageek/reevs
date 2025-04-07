@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation'
 import SubmitButton from '../buttons/submit-button'
 import { handleUserRegistration } from '@/modules/auth/action'
 import { registrationSchema } from '@/types/form-schema'
+import OauthSignin from '../auth/oauth-signin'
 
 const RegisterForm = () => {
 
@@ -48,7 +49,7 @@ const RegisterForm = () => {
         if (response.status === 'success') {
             setIsSubmitted(true)
             toast.success(response.message)
-            router.replace('login')
+            router.replace('signin')
         }
         else if (response.status === 'failed') {
             toast.error(response.message)
@@ -161,22 +162,6 @@ const RegisterForm = () => {
 
                     <div className='mt-4 w-full'>
                         <SubmitButton isSubmitSuccessful={isSubmitted} isSubmitting={isSubmitting} text="Create an account" />
-                    </div>
-
-                    <div className='w-full flex items-center justify-center text-sm'>
-                        <div className='text-gray-300/80'>
-                            Or register with
-                        </div>
-                    </div>
-
-                    <div className='flex items-center gap-x-4 w-full'>
-                        <Button className='w-1/2 py-4 lg:py-8 bg-transparent border-[1.5px] border-gray-200/70 hover:bg-transparent hover:text-purple-500 hover:border-purple-500'>
-                            <FaGoogle /> Google
-                        </Button>
-
-                        <Button className='w-1/2 py-4 lg:py-8 bg-transparent border-[1.5px] border-gray-200/70 hover:bg-transparent hover:text-purple-500 hover:border-purple-500'>
-                            <FaApple /> Apple
-                        </Button>
                     </div>
                 </div>
             </form>
