@@ -35,12 +35,10 @@ class AuthService {
           message: "User already exist",
         };
 
-      const userRole = await prisma.role.findUnique({
-        where: { name: "user" },
-      });
-      const adminRole = await prisma.role.findUnique({
-        where: { name: "admin" },
-      });
+      const adminRole = await this.findOrCreateRole("admin");
+      const userRole = await this.findOrCreateRole("user");
+
+      console.log({ adminRole, userRole });
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -51,7 +49,7 @@ class AuthService {
           lastName,
           email,
           password: hashedPassword,
-          roleId: (role == "admin" ? adminRole : userRole)?.id!,
+          roleId: role == "admin" ? adminRole : userRole,
         },
       });
 
@@ -85,6 +83,14 @@ class AuthService {
         data: error.message,
       };
     }
+  }
+
+  private async findOrCreateRole(role: string): Promise<string> {
+    const roleFound = await prisma.role.findUnique({ where: { name: role } });
+    if (roleFound) return roleFound.id;
+
+    const newRole = await prisma.role.create({ data: { name: role } });
+    return newRole.id;
   }
 }
 
