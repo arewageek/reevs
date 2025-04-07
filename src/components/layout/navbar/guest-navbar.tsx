@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
-import { Button } from '../ui/button'
+import { Button } from '../../ui/button'
 
 const GuestNavbar = () => {
     return (
@@ -12,7 +12,7 @@ const GuestNavbar = () => {
 
                 <div className='flex items-center gap-2'>
                     <Button asChild variant="link" className='hover:no-underline hover:text-black/70 font-bold'>
-                        <Link href="/login">
+                        <Link href="/signin">
                             Signin
                         </Link>
                     </Button>

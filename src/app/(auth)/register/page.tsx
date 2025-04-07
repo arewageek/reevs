@@ -10,7 +10,7 @@ const RegisterPage = () => {
                     Create a free account.
                 </h2>
                 <p className='text-gray-300 text-sm lg:text-lg mt-3 font-inter'>
-                    Already have an account? <Link href="/login" className='hover:underline text-purple-400'>Login</Link>
+                    Already have an account? <Link href="/signin" className='hover:underline text-purple-400'>Signin your account</Link>
                 </p>
             </div>
 

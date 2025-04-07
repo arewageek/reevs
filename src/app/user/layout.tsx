@@ -1,4 +1,4 @@
-import AuthNavbar from '@/components/layout/auth-navbar'
+import AuthNavbar from '@/components/layout/navbar/auth-navbar'
 import React from 'react'
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {

@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Inter, Montserrat, Nunito, Poppins } from "next/font
 import { ToastContainer } from 'react-toastify'
 
 import "./globals.css";
-import GuestNavbar from "@/components/layout/guest-navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

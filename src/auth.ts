@@ -1,10 +1,9 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
-import Linkedin from "next-auth/providers/linkedin";
 import { prisma } from "./lib/prisma";
 import { loginSchema } from "./types/form-schema";
 import { TAuthUser } from "./types/common";
+import bcrypt from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -28,13 +27,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
         if (!user) return null;
 
-        // // check if password match
-        // const isValidPassword = await authService.verifyPasswordMatch(
-        //   user.password,
-        //   credentials.password as string
-        // );
+        // check if password match
+        const isValidPassword = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
 
-        // if (!isValidPassword) return null;
+        if (!isValidPassword) return null;
 
         return {
           id: user.id,
@@ -44,14 +43,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           role: user.role?.name || "user",
         };
       },
-    }),
-    Google({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-    }),
-    Linkedin({
-      clientId: process.env.LINKEDIN_ID,
-      clientSecret: process.env.LINKEDIN_SECRET,
     }),
   ],
   callbacks: {
@@ -87,7 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: "/signin",
     newUser: "/register",
   },
 });

@@ -24,3 +24,7 @@ export const loginSchema = z.object({
   email: z.string().email().min(5).max(30),
   password: z.string().min(8).max(30),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email().min(5).max(30),
+});

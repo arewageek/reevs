@@ -1,5 +1,5 @@
 import React from 'react'
-import SignoutButton from '../auth/signout-button'
+import SignoutButton from '../../auth/signout-button'
 
 const AuthNavbar = () => {
     return (
