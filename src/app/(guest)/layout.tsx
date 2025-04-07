@@ -1,4 +1,4 @@
-import GuestNavbar from '@/components/layout/guest-navbar'
+import GuestNavbar from '@/components/layout/navbar/guest-navbar'
 import React from 'react'
 
 const GuestLayout = ({ children }: { children: React.ReactNode }) => {
