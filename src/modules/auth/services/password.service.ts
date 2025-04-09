@@ -12,41 +12,78 @@ class PasswordService {
       // generate password reset token
       const token = nanoid(6);
 
-      const request = await prisma.verificationRequest.findFirst({
+      /**
+       * Plan: The token will be hashed and stored locally so it can be verified to ensure the user changing the password is same user who requested the reset.
+       */
+      const hashedToken = await bcrypt.hash(token, 10);
+
+      const prevRequest = await prisma.verificationRequest.findFirst({
         where: { userId: user.id },
       });
-      console.log({ request });
 
-      //   //   persist verification token
-      await prisma.verificationRequest.create({
-        data: {
-          userId: user.id,
-          token,
-          identifier: "PASSWORD_RESET",
-          expires: new Date(Date.now() + 15 * 60 * 1000),
-        },
-      });
+      if (!prevRequest) {
+        //   persist verification token
+        await prisma.verificationRequest.create({
+          data: {
+            userId: user.id,
+            token,
+            identifier: "PASSWORD_RESET",
+            expires: new Date(Date.now() + 15 * 60 * 1000),
+          },
+        });
+      } else {
+        await prisma.verificationRequest.update({
+          where: { id: prevRequest.id },
+          data: {
+            token,
+            expires: new Date(Date.now() + 15 * 60 * 1000),
+          },
+        });
+      }
 
       return {
         status: "success",
         message: "Password reset token sent to your email",
+        data: {
+          token: hashedToken,
+        },
       };
     } catch (error: any) {
       return { status: "failed", data: error.message };
     }
   }
 
-  public async verify(token: string): Promise<TResponse> {
+  public async verifyToken(
+    token: string,
+    tokenHash: string
+  ): Promise<TResponse> {
     try {
+      const hashMatched = await bcrypt.compare(token, tokenHash);
+      if (!hashMatched)
+        return {
+          status: "failed",
+          message: "Device not authorized!",
+        };
+
       const verification = await prisma.verificationRequest.findUnique({
         where: { token },
+        include: {
+          User: {
+            select: { id: true },
+          },
+        },
       });
+
       if (!verification) return { status: "failed", message: "Invalid token" };
-      if (verification.expires > new Date()) {
+      if (verification.expires <= new Date()) {
         return { status: "failed", message: "Token has expired" };
       }
 
-      return { status: "success", message: "Verification successful" };
+      return {
+        status: "success",
+        message: "Verification successful",
+        data: { userId: verification.User.id },
+      };
     } catch (error: any) {
       return {
         status: "failed",
@@ -57,28 +94,21 @@ class PasswordService {
 
   public async resetPassword({
     password,
-    email,
-    token,
+    userId,
   }: {
-    email: string;
-    token: string;
+    userId: string;
     password: string;
   }): Promise<TResponse> {
     try {
-      const tokenVerification = this.verify(token);
-      if ((await tokenVerification).status == "success") {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-        await prisma.user.update({
-          where: { email },
-          data: { password: hashedPassword },
-        });
+      await prisma.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+      });
 
-        return { status: "success", message: "Password reset successful" };
-      }
-
-      return { status: "failed", message: (await tokenVerification).message };
+      return { status: "success", message: "Password reset successful" };
     } catch (error: any) {
       return {
         status: "failed",

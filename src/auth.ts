@@ -15,7 +15,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         const validation = loginSchema.safeParse(credentials);
         if (!validation.success) {
-          console.log({ error: validation.error });
           return null;
         }
 

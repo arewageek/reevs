@@ -10,7 +10,8 @@ const SigninPage = () => {
                     Login your account.
                 </h2>
                 <p className='text-gray-300 text-sm lg:text-lg mt-4'>
-                    New here? <Link href="/register" className='hover:underline text-purple-400'>Create an account</Link> or <Link className='hover:underline text-purple-400' href="/forgot-password">recover your lost account</Link>
+                    New here? <Link href="/register" className='hover:underline text-purple-400'>Create an account</Link> or {' '}
+                    <Link className='hover:underline text-purple-400' href="/reset-password">recover your account</Link>
                 </p>
             </div>
 

@@ -20,7 +20,6 @@ class AuthService {
         password,
       });
 
-      console.log({ error: validation.error });
       if (!validation.success) {
         return {
           status: "failed",
@@ -37,8 +36,6 @@ class AuthService {
 
       const adminRole = await this.findOrCreateRole("admin");
       const userRole = await this.findOrCreateRole("user");
-
-      console.log({ adminRole, userRole });
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
