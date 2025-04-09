@@ -1,19 +1,24 @@
 "use client"
 
-import { handlePasswordReset } from '@/modules/auth/action'
+import { handleRequestPasswordReset } from '@/modules/auth/action'
 import { forgotPasswordSchema } from '@/types/form-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import SubmitButton from '../buttons/submit-button'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
-import { Input } from '../ui/input'
+import SubmitButton from '../../buttons/submit-button'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../../ui/form'
+import { Input } from '../../ui/input'
 import { toast } from 'react-toastify'
+import { usePasswordResetStore } from '@/store/auth/usePasswordStore'
+import { PasswordResetSteps } from '@/types/enums'
+import Cookie from 'js-cookie'
 
 const ForgotPasswordForm = () => {
 
     const [isSuccessful, setIsSuccessful] = useState(false)
+
+    const { resetStep, setStep } = usePasswordResetStore()
 
     const form = useForm<z.infer<typeof forgotPasswordSchema>>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -25,14 +30,19 @@ const ForgotPasswordForm = () => {
     const { isSubmitting } = form.formState
 
     const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
-        const reset = await handlePasswordReset(values.email)
+        const reset = await handleRequestPasswordReset(values.email)
         if (reset.status == "success") {
             setIsSuccessful(true)
             toast.success("Your password reset link has been sent to your email")
+
+            Cookie.set('password-reset-token', reset.data.token, { expires: 1 })
+            setStep(PasswordResetSteps.verify_email)
         }
         else {
             toast.error(reset.message || reset.data)
+            resetStep()
         }
+        console.log({ reset })
     }
 
     return (

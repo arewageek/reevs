@@ -22,11 +22,20 @@ export async function handleSignout() {
   await signOut({ redirectTo: "/" });
 }
 
-export async function handlePasswordReset(email: string): Promise<TResponse> {
+export async function handleRequestPasswordReset(
+  email: string
+): Promise<TResponse> {
   return await passwordService.requestPasswordReset(email);
 }
 
 export async function handleGoogleSignin() {
   "use server";
   await signIn("google");
+}
+
+export async function handlePasswordTokenVerification(
+  token: string,
+  hashedToken: string
+): Promise<TResponse> {
+  return await passwordService.verifyToken(token, hashedToken);
 }
