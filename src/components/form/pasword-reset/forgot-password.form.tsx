@@ -42,7 +42,6 @@ const ForgotPasswordForm = () => {
             toast.error(reset.message || reset.data)
             resetStep()
         }
-        console.log({ reset })
     }
 
     return (
