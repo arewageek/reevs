@@ -1,6 +1,7 @@
 "use client"
 
 import ForgotPasswordForm from '@/components/form/pasword-reset/forgot-password.form'
+import ResetPasswordForm from '@/components/form/pasword-reset/reset-password.form'
 import VerifyPasswordResetForm from '@/components/form/pasword-reset/verify-password-reset-token.form'
 import { usePasswordResetStore } from '@/store/auth/usePasswordStore'
 import { PasswordResetSteps } from '@/types/enums'
@@ -18,7 +19,7 @@ const ResetPasswordPage = () => {
             case PasswordResetSteps.verify_email:
                 return <VerifyPasswordResetForm />
             case PasswordResetSteps.reset_password:
-                return <ForgotPasswordForm />
+                return <ResetPasswordForm />
             default:
                 return <ForgotPasswordForm />
         }

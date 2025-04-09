@@ -14,21 +14,22 @@ import { PasswordResetSteps } from "@/types/enums"
 import { useEffect, useState } from "react"
 
 const VerifyPasswordResetForm = () => {
-  const [attempts, setAttempts] = useState(3)
+  const [attempts, setAttempts] = useState(4)
 
-  const { setStep, resetStep } = usePasswordResetStore()
+  const { setStep, resetStep, setUserId } = usePasswordResetStore()
 
   const handleSubmit = async (input: string) => {
     const tokenHash = Cookie.get('password-reset-token')
-    console.log({ tokenHash })
     const verify = await handlePasswordTokenVerification(input, tokenHash || "")
     if (verify.status == "success") {
       toast.success("Token verified successfully")
       Cookie.remove('password-reset-token')
+
+      setUserId(verify.data.userId)
       setStep(PasswordResetSteps.reset_password)
     }
     else {
-      toast.error(`${verify.message || verify.data}. You have ${attempts - 1} attempt(s) left`)
+      toast.error(`${verify.message || verify.data} ${attempts > 1 ? `You have ${attempts - 1} attempt(s) left` : ""}`)
       setAttempts(prev => prev - 1)
     }
   }

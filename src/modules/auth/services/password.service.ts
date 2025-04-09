@@ -67,6 +67,11 @@ class PasswordService {
 
       const verification = await prisma.verificationRequest.findUnique({
         where: { token },
+        include: {
+          User: {
+            select: { id: true },
+          },
+        },
       });
 
       if (!verification) return { status: "failed", message: "Invalid token" };
@@ -74,7 +79,11 @@ class PasswordService {
         return { status: "failed", message: "Token has expired" };
       }
 
-      return { status: "success", message: "Verification successful" };
+      return {
+        status: "success",
+        message: "Verification successful",
+        data: { userId: verification.User.id },
+      };
     } catch (error: any) {
       return {
         status: "failed",
@@ -85,11 +94,9 @@ class PasswordService {
 
   public async resetPassword({
     password,
-    email,
+    userId,
   }: {
-    email: string;
-    token: string;
-    hashedToken: string;
+    userId: string;
     password: string;
   }): Promise<TResponse> {
     try {
@@ -97,7 +104,7 @@ class PasswordService {
       const hashedPassword = await bcrypt.hash(password, salt);
 
       await prisma.user.update({
-        where: { email },
+        where: { id: userId },
         data: { password: hashedPassword },
       });
 
